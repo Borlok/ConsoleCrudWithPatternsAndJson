@@ -1,5 +1,5 @@
 package model;
 
 public enum AccountStatus {
-    ACTIVE,BANNED,DELETED
+    ACTIVE, BANNED, DELETED
 }

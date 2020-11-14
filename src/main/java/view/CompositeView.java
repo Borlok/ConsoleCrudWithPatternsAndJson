@@ -6,13 +6,14 @@ import java.util.List;
 public class CompositeView {
     private final List<View> views = new ArrayList<>();
 
-    public void addView (View view) {
+    public CompositeView addView(View view) {
         views.add(view);
+        return this;
     }
 
-    public void getAllView () {
+    public void getAllView() {
         for (int i = 0; i < views.size(); i++) {
-            System.out.println((i+1) + ": " + views.get(i));
+            System.out.println((i + 1) + ": " + views.get(i));
         }
     }
 

@@ -6,6 +6,9 @@ public class Customer {
     private Set<Specialty> specialties;
     private Account account;
 
+    public Customer() {
+    }
+
     public Customer(Set<Specialty> specialties, Account account) {
         this.specialties = specialties;
         this.account = account;

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Юрий",
+    "id": 1,
+    "status": "ACTIVE"
+  },
+  {
+    "name": "Василий",
+    "id": 2,
+    "status": "ACTIVE"
+  },
+  {
+    "name": "Петр",
+    "id": 3,
+    "status": "BANNED"
+  },
+  {
+    "name": "Дмитрий",
+    "id": 4,
+    "status": "ACTIVE"
+  }
+]

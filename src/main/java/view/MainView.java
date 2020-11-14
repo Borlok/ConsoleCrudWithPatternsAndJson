@@ -5,18 +5,19 @@ import java.util.Scanner;
 
 public class MainView {
     private CompositeView views;
+    private Scanner sc;
 
     public void addView(CompositeView views) {
         this.views = views;
     }
 
     public void main() {
-        try (Scanner sc = new Scanner(System.in)) {
+        try {
+            sc = new Scanner(System.in);
             List<View> allView = views.getListOfView();
-
-            System.out.println("\n--Меню--\n"
-                    + "Добро пожаловать, выберите вариант");
-
+            System.out.println(
+                    "\n--Меню--\n"
+                            + "Добро пожаловать, выберите вариант");
             while (true) {
                 views.getAllView();
                 System.out.println((allView.size() + 1) + ": Выход");
@@ -26,8 +27,13 @@ public class MainView {
                 allView.get(choice - 1).main();
             }
         } catch (RuntimeException e) {
+            System.err.println("Введены неверные символы");
+            main();
+        } catch (Exception e) {
             System.err.println("Для начала нужно добавить объект CompositeView"
                     + " в MainViews методом (addViews())");
+        } finally {
+            sc.close();
         }
     }
 

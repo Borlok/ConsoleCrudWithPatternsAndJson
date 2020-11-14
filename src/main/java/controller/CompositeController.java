@@ -3,11 +3,12 @@ package controller;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ControllerStrategy {
+public class CompositeController {
     List<Controller<?>> controllers = new ArrayList<>();
 
-    public void addController(Controller<?> controller) {
+    public CompositeController addController(Controller<?> controller) {
         controllers.add(controller);
+        return this;
     }
 
     public Controller<?> getController(Controller<?> controller) {

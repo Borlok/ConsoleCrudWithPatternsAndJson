@@ -1,7 +1,36 @@
 package model;
 
-import java.util.Set;
 
 public class Specialty {
-    private Set<Specialty> specialties;
+    private int id;
+    private String name;
+
+    public Specialty() {
+    }
+
+    public Specialty(String name) {
+        this.name = name;
+        id = 0;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

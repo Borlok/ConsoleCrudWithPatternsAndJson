@@ -1,22 +1,30 @@
 package view;
 
-import controller.AccountController;
-import controller.ControllerStrategy;
+import controller.*;
+import controller.builder.AccountBuilderImpl;
+import model.Account;
+import model.AccountStatus;
+import model.Customer;
+import model.Specialty;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 public class AccountView implements View {
-    ControllerStrategy controllerStrategy;
-    private final Scanner sc = new Scanner(System.in);
+    private final CompositeController compositeController;
+    private final AccountBuilderImpl accountBuilder = new AccountBuilderImpl();
+    private Scanner sc;
 
-    public AccountView(ControllerStrategy controllerStrategy) {
-        this.controllerStrategy = controllerStrategy;
+    public AccountView(CompositeController compositeController) {
+        this.compositeController = compositeController;
     }
 
     @Override
     public void main() {
         try {
-            int choice;
+            sc = new Scanner(System.in);
             System.out.println("\n--Аккаунт--\n" +
                     "Выберите действие:\n" +
                     "1: Добавить аккаунт\n" +
@@ -24,8 +32,8 @@ public class AccountView implements View {
                     "3: Редактировать аккаунт\n" +
                     "4: Удалить аккаунт\n" +
                     "5: Назад");
-            choice = sc.nextInt();
-            while (choice != 5)
+            int choice = sc.nextInt();
+            if (choice != 5)
                 switch (choice) {
                     case 1 -> create();
                     case 2 -> read();
@@ -37,31 +45,122 @@ public class AccountView implements View {
                     }
                 }
         } catch (Exception e) {
-            System.out.println("Введены неверные символы");
+            System.out.println("Введены неверные символы " + e);
             main();
-        } finally {
-            sc.close();
         }
     }
 
     @Override
     public void create() {
-        controllerStrategy.getController(new AccountController()).create();
+        createAllAndSave();
+        main();
+    }
+
+    private void createAllAndSave() {
+        Customer customer = new Customer();
+        Account account = createAccount();
+        customer.setSpecialties(getSpecialties());
+        customer.setAccount(account);
+        commitCustomerAndAccount(customer, account, "create");
+    }
+
+    private Account createAccount() {
+        System.out.println("Введите имя");
+        accountBuilder.createAccount();
+        accountBuilder.setName(sc.next());
+
+        System.out.println("Выберите статус");
+        viewAccountStatus();
+        accountBuilder.setStatus(AccountStatus.values()[sc.nextInt() - 1]);
+
+        return accountBuilder.getAccount();
+    }
+
+    private void viewAccountStatus() {
+        for (int i = 0; i < AccountStatus.values().length; i++)
+            System.out.println((i + 1) + ": " + AccountStatus.values()[i]);
+    }
+
+    private Set<Specialty> getSpecialties() {
+        Set<Specialty> specialties = new HashSet<>();
+        List<Specialty> specialtyList = ((SpecialtyController) compositeController
+                .getController(new SpecialtyController()))
+                .getAll();
+
+        specialtyList.forEach(x -> System.out.println(x.getId() + ": " + x.getName()));
+
+        System.out.println("Добавьте специальности\n" + "для выхода нажмите '0'");
+        int order = sc.nextInt();
+        while (order != 0) {
+            specialties.add(specialtyList.get(order - 1));
+            System.out.println("добавьте еще или нажмите '0' для продолжения");
+            order = sc.nextInt();
+        }
+        return specialties;
     }
 
     @Override
     public void read() {
+        viewAllAccounts();
+        System.out.println("Введите любой символ для продолжения...");
+        sc.next();
+        main();
+    }
 
+    private void viewAllAccounts() {
+        getAllAccountsAsList().forEach(x ->
+                System.out.println(x.getId() + ": | " + x.getName() + " | " + x.getStatus() + "|"));
+    }
+
+    private List<Account> getAllAccountsAsList() {
+        return ((AccountController) compositeController.getController(new AccountController()))
+                .getAll();
+    }
+
+    private void commitCustomerAndAccount(Customer customer, Account account, String action) {
+        Controller<Account> accountController =
+                ((AccountController) compositeController.getController(new AccountController()));
+        Controller<Customer> customerController =
+                ((CustomerController) compositeController.getController(new CustomerController()));
+
+        if (action.equalsIgnoreCase("create")) {
+            customerController.create(customer);
+            accountController.create(account);
+
+        } else if (action.equalsIgnoreCase("update")) {
+            customerController.update(customer, customer.getAccount().getId());
+            accountController.update(account, account.getId());
+
+        } else if (action.equalsIgnoreCase("delete")) {
+            customerController.delete(customer.getAccount().getId());
+            accountController.delete(account.getId());
+        }
     }
 
     @Override
     public void update() {
-
+        System.out.println("Выберите аккаунт для замены");
+        viewAllAccounts();
+        int id = sc.nextInt();
+        Customer customer = new Customer();
+        Account account = createAccount();
+        account.setId(id);
+        customer.setSpecialties(getSpecialties());
+        customer.setAccount(account);
+        commitCustomerAndAccount(customer, account, "update");
+        main();
     }
 
     @Override
     public void delete() {
-
+        System.out.println("Выберите аккаунт для удаления: ");
+        viewAllAccounts();
+        Customer customer = new Customer();
+        Account account = accountBuilder.getAccount();
+        account.setId(sc.nextInt());
+        customer.setAccount(account);
+        commitCustomerAndAccount(customer, account, "delete");
+        main();
     }
 
     @Override
