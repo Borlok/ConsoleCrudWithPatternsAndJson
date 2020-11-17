@@ -13,10 +13,5 @@
     "name": "Петр",
     "id": 3,
     "status": "BANNED"
-  },
-  {
-    "name": "Дмитрий",
-    "id": 4,
-    "status": "ACTIVE"
   }
 ]

@@ -3,7 +3,7 @@ package controller;
 import model.Specialty;
 import repository.CompositeRepository;
 import repository.SpecialtyRepository;
-import repository.io.SpecialRepositoryImpl;
+import repository.json.JsonSpecialRepositoryImpl;
 
 import java.util.List;
 
@@ -29,25 +29,25 @@ public class SpecialtyController implements Controller<Specialty> {
 
     private Specialty save(Specialty specialty) {
         return ((SpecialtyRepository) compositeRepository
-                .getRepository(new SpecialRepositoryImpl())).create(specialty);
+                .getRepository(new JsonSpecialRepositoryImpl())).create(specialty);
     }
 
     @Override
     public List<Specialty> getAll() {
         return ((SpecialtyRepository) compositeRepository
-                .getRepository(new SpecialRepositoryImpl())).getAll();
+                .getRepository(new JsonSpecialRepositoryImpl())).getAll();
     }
 
     @Override
     public Specialty update(Specialty specialty, Integer id) {
         specialty.setId(id);
         return ((SpecialtyRepository) compositeRepository
-                .getRepository(new SpecialRepositoryImpl())).update(specialty, id);
+                .getRepository(new JsonSpecialRepositoryImpl())).update(specialty, id);
     }
 
     @Override
     public void delete(Integer id) {
-        compositeRepository.getRepository(new SpecialRepositoryImpl()).delete(id);
+        compositeRepository.getRepository(new JsonSpecialRepositoryImpl()).delete(id);
     }
 
     @Override

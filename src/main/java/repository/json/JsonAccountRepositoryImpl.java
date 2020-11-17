@@ -1,4 +1,4 @@
-package repository.io;
+package repository.json;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -8,17 +8,16 @@ import model.AccountStatus;
 import repository.AccountRepository;
 
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AccountRepositoryImpl implements AccountRepository {
+public class JsonAccountRepositoryImpl implements AccountRepository {
     private final String FILE_PATH = "./src/main/resources/files/accounts.json";
     private final Path PATH = Paths.get(FILE_PATH);
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson saverLoader = new GsonBuilder().create();
 
     @Override
     public Account create(Account account) {
@@ -29,11 +28,7 @@ public class AccountRepositoryImpl implements AccountRepository {
     }
 
     private void saveAccountsCollectionToFile(List<Account> accounts) {
-        try (FileWriter writer = new FileWriter(PATH.toFile())) {
-            gson.toJson(accounts, writer);
-        } catch (IOException e) {
-            System.err.println("Ошибка при записи аккаунта в файл");
-        }
+        JsonUtils.saveCollectionToJsonFile(accounts, PATH);
     }
 
     @Override
@@ -63,16 +58,15 @@ public class AccountRepositoryImpl implements AccountRepository {
 
     @Override
     public List<Account> getAll() {
-        List<Account> accounts = new ArrayList<>();
+        List<Account> collection = new ArrayList<>();
         try (FileReader reader = new FileReader(PATH.toFile())) {
-            accounts = gson.fromJson(reader, new TypeToken<List<Account>>() {
+            collection = saverLoader.fromJson(reader, new TypeToken<List<Account>>() {
             }.getType());
         } catch (IOException | NullPointerException e) {
-            System.err.println("Ошибка чтения файла аккаунта: " + e);
+            System.err.println("Ошибка чтения файла: " + e);
         }
-        return accounts;
+        return collection;
     }
-
 
     @Override
     public void delete(Integer id) {
@@ -88,6 +82,6 @@ public class AccountRepositoryImpl implements AccountRepository {
 
     @Override
     public String toString() {
-        return "AccountRepository";
+        return "JsonAccountRepositoryImpl";
     }
 }

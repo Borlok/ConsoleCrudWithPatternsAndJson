@@ -1,4 +1,4 @@
-package repository.io;
+package repository.json;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -7,7 +7,6 @@ import model.Specialty;
 import repository.SpecialtyRepository;
 
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,10 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SpecialRepositoryImpl implements SpecialtyRepository {
+public class JsonSpecialRepositoryImpl implements SpecialtyRepository {
     private final String FILE_PATH = "./src/main/resources/files/specialty.json";
     private final Path PATH = Paths.get(FILE_PATH);
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson saverLoader = new GsonBuilder().create();
 
     @Override
     public Specialty create(Specialty specialty) {
@@ -31,11 +30,7 @@ public class SpecialRepositoryImpl implements SpecialtyRepository {
     }
 
     private void saveSpecialtyCollectionToFile(List<Specialty> specialties) {
-        try (FileWriter writer = new FileWriter(PATH.toFile())) {
-            gson.toJson(specialties, writer);
-        } catch (IOException e) {
-            System.err.println("Ошибка при записи в файл");
-        }
+        JsonUtils.saveCollectionToJsonFile(specialties,PATH);
     }
 
     private boolean isContains(Specialty specialty) {
@@ -68,14 +63,14 @@ public class SpecialRepositoryImpl implements SpecialtyRepository {
 
     @Override
     public List<Specialty> getAll() {
-        List<Specialty> specialties = new ArrayList<>();
+        List<Specialty> collection = new ArrayList<>();
         try (FileReader reader = new FileReader(PATH.toFile())) {
-            specialties = gson.fromJson(reader, new TypeToken<List<Specialty>>() {
+            collection = saverLoader.fromJson(reader, new TypeToken<List<Specialty>>() {
             }.getType());
         } catch (IOException | NullPointerException e) {
-            System.err.println("Ошибка в чтении специальностей: " + e);
+            System.err.println("Ошибка чтения файла: " + e);
         }
-        return specialties;
+        return collection;
     }
 
     @Override
@@ -88,6 +83,6 @@ public class SpecialRepositoryImpl implements SpecialtyRepository {
 
     @Override
     public String toString() {
-        return "SpecialRepository";
+        return "JsonSpecialRepositoryImpl";
     }
 }

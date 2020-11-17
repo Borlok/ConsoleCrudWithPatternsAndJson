@@ -8,6 +8,7 @@ import model.Account;
 import model.AccountStatus;
 import model.Customer;
 import model.Specialty;
+import view.utils.CustomerAndAccountCommitter;
 
 import java.util.*;
 
@@ -53,7 +54,8 @@ public class CustomerView implements View {
     @Override
     public void create() {
         Customer customer = createCustomer();
-        commitCustomerAndAccount(customer, customer.getAccount(), "create");
+        CustomerAndAccountCommitter.setCompositeController(compositeController);
+        CustomerAndAccountCommitter.commitCustomerAndAccount(customer, customer.getAccount(), "create");
         main();
     }
 
@@ -103,26 +105,6 @@ public class CustomerView implements View {
         return specialties;
     }
 
-    private void commitCustomerAndAccount(Customer customer, Account account, String action) {
-        Controller<Account> accountController =
-                ((AccountController) compositeController.getController(new AccountController()));
-        Controller<Customer> customerController =
-                ((CustomerController) compositeController.getController(new CustomerController()));
-
-        if (action.equalsIgnoreCase("create")) {
-            customerController.create(customer);
-            accountController.create(account);
-
-        } else if (action.equalsIgnoreCase("update")) {
-            customerController.update(customer, customer.getAccount().getId());
-            accountController.update(account, account.getId());
-
-        } else if (action.equalsIgnoreCase("delete")) {
-            customerController.delete(customer.getAccount().getId());
-            accountController.delete(account.getId());
-        }
-    }
-
     @Override
     public void read() {
         viewAllCustomers();
@@ -138,7 +120,7 @@ public class CustomerView implements View {
 
     private void viewAllCustomers() {
         getAllCustomersAsList().forEach(x ->
-                System.out.println(x.getAccount().getId()
+                System.out.println(x.getId()
                         + ": | " + x.getAccount().getName()
                         + " | " + x.getAccount().getStatus()
                         + " | " + Arrays.toString(x.getSpecialties().toArray()) + "|"));
@@ -151,8 +133,10 @@ public class CustomerView implements View {
         int id = sc.nextInt();
 
         Customer customer = createCustomer();
-        customer.getAccount().setId(id);
-        commitCustomerAndAccount(customer, customer.getAccount(), "update");
+        customer.setId(id);
+        updateAccountIdByCustomerId(customer);
+        CustomerAndAccountCommitter.setCompositeController(compositeController);
+        CustomerAndAccountCommitter.commitCustomerAndAccount(customer, customer.getAccount(), "update");
         main();
     }
 
@@ -160,10 +144,24 @@ public class CustomerView implements View {
     public void delete() {
         System.out.println("Выберите покупателя для удаления: ");
         viewAllCustomers();
-        Customer customer = customerBuilder.getCustomer();
-        customer.getAccount().setId(sc.nextInt());
-        commitCustomerAndAccount(customer, customer.getAccount(), "delete");
+        Customer customer = new Customer(new HashSet<>(),new Account());
+        int id = sc.nextInt();
+        customer.setId(id);
+        updateAccountIdByCustomerId(customer);
+        CustomerAndAccountCommitter.setCompositeController(compositeController);
+        CustomerAndAccountCommitter.commitCustomerAndAccount(customer, customer.getAccount(), "delete");
         main();
+    }
+
+    private void updateAccountIdByCustomerId(Customer customer) {
+        customer.getAccount().setId(
+                ((CustomerController) compositeController.getController(new CustomerController()))
+                        .getAll().stream()
+                        .filter(x -> x.getId() == customer.getId())
+                        .findFirst().orElse(
+                        new Customer(new HashSet<>(),new Account("DELETED",AccountStatus.DELETED)))
+                        .getAccount().getId()
+        );
     }
 
     @Override

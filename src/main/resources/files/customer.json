@@ -1,62 +1,24 @@
 [
   {
-    "specialties": [
-      {
-        "id": 1,
-        "name": "Java"
-      }
+    "Id": 1,
+    "Specialties": [
+      1
     ],
-    "account": {
-      "name": "Юрий",
-      "id": 1,
-      "status": "ACTIVE"
-    }
+    "AccountId": 1
   },
   {
-    "specialties": [
-      {
-        "id": 2,
-        "name": "C++"
-      }
+    "Id": 2,
+    "Specialties": [
+      2,
+      1
     ],
-    "account": {
-      "name": "Василий",
-      "id": 2,
-      "status": "ACTIVE"
-    }
+    "AccountId": 2
   },
   {
-    "specialties": [
-      {
-        "id": 1,
-        "name": "Java"
-      },
-      {
-        "id": 2,
-        "name": "C++"
-      },
-      {
-        "id": 3,
-        "name": "Kotlin"
-      }
+    "Id": 3,
+    "Specialties": [
+      3
     ],
-    "account": {
-      "name": "Петр",
-      "id": 3,
-      "status": "BANNED"
-    }
-  },
-  {
-    "specialties": [
-      {
-        "id": 1,
-        "name": "Java"
-      }
-    ],
-    "account": {
-      "name": "Дмитрий",
-      "id": 4,
-      "status": "ACTIVE"
-    }
+    "AccountId": 3
   }
 ]

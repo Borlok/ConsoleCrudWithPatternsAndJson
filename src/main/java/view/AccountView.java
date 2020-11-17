@@ -6,6 +6,7 @@ import model.Account;
 import model.AccountStatus;
 import model.Customer;
 import model.Specialty;
+import view.utils.CustomerAndAccountCommitter;
 
 import java.util.HashSet;
 import java.util.List;
@@ -61,7 +62,8 @@ public class AccountView implements View {
         Account account = createAccount();
         customer.setSpecialties(getSpecialties());
         customer.setAccount(account);
-        commitCustomerAndAccount(customer, account, "create");
+        CustomerAndAccountCommitter.setCompositeController(compositeController);
+        CustomerAndAccountCommitter.commitCustomerAndAccount(customer, account, "create");
     }
 
     private Account createAccount() {
@@ -117,49 +119,44 @@ public class AccountView implements View {
                 .getAll();
     }
 
-    private void commitCustomerAndAccount(Customer customer, Account account, String action) {
-        Controller<Account> accountController =
-                ((AccountController) compositeController.getController(new AccountController()));
-        Controller<Customer> customerController =
-                ((CustomerController) compositeController.getController(new CustomerController()));
-
-        if (action.equalsIgnoreCase("create")) {
-            customerController.create(customer);
-            accountController.create(account);
-
-        } else if (action.equalsIgnoreCase("update")) {
-            customerController.update(customer, customer.getAccount().getId());
-            accountController.update(account, account.getId());
-
-        } else if (action.equalsIgnoreCase("delete")) {
-            customerController.delete(customer.getAccount().getId());
-            accountController.delete(account.getId());
-        }
-    }
-
     @Override
     public void update() {
         System.out.println("Выберите аккаунт для замены");
         viewAllAccounts();
         int id = sc.nextInt();
-        Customer customer = new Customer();
+        Customer customer = getCustomerByAccountId(id);
         Account account = createAccount();
         account.setId(id);
         customer.setSpecialties(getSpecialties());
         customer.setAccount(account);
-        commitCustomerAndAccount(customer, account, "update");
+        CustomerAndAccountCommitter.setCompositeController(compositeController);
+        CustomerAndAccountCommitter.commitCustomerAndAccount(customer, account, "update");
         main();
+    }
+
+    private Customer getCustomerByAccountId(int id) {
+        Customer customer = new Customer(new HashSet<>(), new Account());
+        customer.setId(
+                ((CustomerController) compositeController.getController(new CustomerController()))
+                        .getAll()
+                        .stream()
+                        .filter(x -> x.getAccount().getId() == id)
+                        .findFirst().orElse(
+                        new Customer(new HashSet<>(),new Account("DELETED",AccountStatus.DELETED)))
+                        .getId()
+        );
+        return customer;
     }
 
     @Override
     public void delete() {
         System.out.println("Выберите аккаунт для удаления: ");
         viewAllAccounts();
-        Customer customer = new Customer();
-        Account account = accountBuilder.getAccount();
-        account.setId(sc.nextInt());
-        customer.setAccount(account);
-        commitCustomerAndAccount(customer, account, "delete");
+        int id = sc.nextInt();
+        Customer customer = getCustomerByAccountId(id);
+        customer.getAccount().setId(id);
+        CustomerAndAccountCommitter.setCompositeController(compositeController);
+        CustomerAndAccountCommitter.commitCustomerAndAccount(customer, customer.getAccount(), "delete");
         main();
     }
 

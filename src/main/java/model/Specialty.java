@@ -1,6 +1,5 @@
 package model;
 
-
 public class Specialty {
     private int id;
     private String name;
