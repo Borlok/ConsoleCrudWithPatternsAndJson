@@ -9,6 +9,8 @@
         <module name="CrudWithJson" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="9" />
+    <bytecodeTargetLevel>
+      <module name="CrudWithJson" target="14" />
+    </bytecodeTargetLevel>
   </component>
 </project>
